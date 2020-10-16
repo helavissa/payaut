@@ -11,6 +11,7 @@ public class BeerDiscountPolicy implements DiscountPolicy<Beer> {
     public BigDecimal getDiscount(Beer beer, Discounts discounts) {
         Map<Beer.BeerType, Integer> beersToDiscount = discounts.getBeersToDiscount();
 
+        beersToDiscount.put(beer.getType(), beersToDiscount.get(beer.getType()) + 1); // increase the counter for this kind of beer
         if(beersToDiscount.get(beer.getType()) >= 6){ // if pack is reached apply discount, set counter to 0 for this kind of beer
             beersToDiscount.put(beer.getType(), 0);
             switch (beer.getType()) {
@@ -21,9 +22,8 @@ public class BeerDiscountPolicy implements DiscountPolicy<Beer> {
                 case GERMAN:
                     return new BigDecimal("1.00");
             }
-        }else{ // pack is not reached, increase the counter
-            beersToDiscount.put(beer.getType(), beersToDiscount.get(beer.getType()) + 1);
         }
+
         discounts.setBeersToDiscount(beersToDiscount);
         return new BigDecimal("0.00");
 

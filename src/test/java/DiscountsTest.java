@@ -7,7 +7,6 @@ import products.ShoppingItem;
 import util.Util;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,11 +19,13 @@ public class DiscountsTest {
 
     private Map<String, BigDecimal> appliedDiscounts;
     private Discounts discounts;
+    private List<ShoppingItem> shoppingItems;
 
     @Before
     public void init(){
         appliedDiscounts = new HashMap<>();
         discounts = new Discounts();
+        shoppingItems = new ArrayList<>();
     }
 
     @Test
@@ -39,57 +40,31 @@ public class DiscountsTest {
 
     @Test
     public void testBreadDiscount1(){
-        List<ShoppingItem> breadList = new ArrayList<>();
+        Util.addBreads(shoppingItems, 0, 2);
+        Util.addBreads(shoppingItems, 2, 1);
+        Util.addBreads(shoppingItems, 6, 3);
+        Util.addBreads(shoppingItems, 3, 1);
+        Util.addBreads(shoppingItems, 4, 1);
+        Util.addBreads(shoppingItems, 5, 1);
+        Util.addBreads(shoppingItems, 6, 2);
 
-        Bread bread1 = new Bread(LocalDate.now());
-        Bread bread2 = new Bread(LocalDate.now());
-        Bread bread3 = new Bread(LocalDate.now().minusDays(2));
-
-        Bread bread4 = new Bread(LocalDate.now().minusDays(6));
-        Bread bread5 = new Bread(LocalDate.now().minusDays(6));
-        Bread bread6 = new Bread(LocalDate.now().minusDays(6));
-
-        Bread bread7 = new Bread(LocalDate.now().minusDays(3));
-        Bread bread8 = new Bread(LocalDate.now().minusDays(4));
-        Bread bread9 = new Bread(LocalDate.now().minusDays(5));
-        Bread bread10 = new Bread(LocalDate.now().minusDays(6));
-        Bread bread11 = new Bread(LocalDate.now().minusDays(6));
-
-        breadList.add(bread1);
-        breadList.add(bread2);
-        breadList.add(bread3);
-        breadList.add(bread4);
-        breadList.add(bread5);
-        breadList.add(bread6);
-        breadList.add(bread7);
-        breadList.add(bread8);
-        breadList.add(bread9);
-        breadList.add(bread10);
-        breadList.add(bread11);
-
-        Util.applyDiscounts(breadList, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
         assertEquals(new BigDecimal("8.00"), appliedDiscounts.get(Bread.name));
     }
 
 
     @Test
     public void testBreadDiscount2(){
-        List<ShoppingItem> breadList = new ArrayList<>();
+        Util.addBreads(shoppingItems, 0, 1);
+        Util.addBreads(shoppingItems, 1, 2);
+        Util.addBreads(shoppingItems, 2, 3);
 
-        Bread bread1 = new Bread(LocalDate.now());
-        Bread bread2 = new Bread(LocalDate.now());
-
-        breadList.add(bread1);
-        breadList.add(bread2);
-
-        Util.applyDiscounts(breadList, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
         assertNull(appliedDiscounts.get(Bread.name));
     }
 
     @Test
     public void testBeerDiscount1(){
-        List<ShoppingItem> shoppingItems = new ArrayList<>();
-
         Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 5);
         Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 9);
 
@@ -99,13 +74,29 @@ public class DiscountsTest {
 
     @Test
     public void testBeerDiscount2(){
-        List<ShoppingItem> shoppingItems = new ArrayList<>();
-
         Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 5);
         Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 5);
         Util.addBeers(shoppingItems, Beer.BeerType.GERMAN, 5);
 
         Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
         assertNull(appliedDiscounts.get(Beer.BeerType.BELGIUM.toString()));
+    }
+
+    @Test
+    public void testTotalDiscount1(){
+        Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 7);
+        Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 5);
+        Util.addBeers(shoppingItems, Beer.BeerType.GERMAN, 18);
+        Util.addBreads(shoppingItems, 1, 5);
+        Util.addBreads(shoppingItems, 3, 5);
+        Util.addBreads(shoppingItems, 4, 5);
+        Util.addBreads(shoppingItems, 6, 10);
+
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
+        Util.printDiscounts(appliedDiscounts);
+
+        assertEquals(new BigDecimal("3.00"), appliedDiscounts.get(Beer.BeerType.GERMAN.toString()));
+        assertEquals(new BigDecimal("2.00"), appliedDiscounts.get(Beer.BeerType.DUTCH.toString()));
+        assertEquals(new BigDecimal("22.00"), appliedDiscounts.get(Bread.name));
     }
 }
