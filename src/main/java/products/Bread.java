@@ -1,21 +1,23 @@
 package products;
 
+import discounts.DiscountPolicies;
+import discounts.DiscountPolicy;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.util.Map;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
 public class Bread implements ShoppingItem{
 
-    private final String name = "Bread";
+    public static final String name = "Bread";
     private LocalDate dateProduced;
 
     public Bread(LocalDate dateProduced) {
         this.dateProduced = dateProduced;
     }
 
-    public LocalDate getDateProduced() {
+    private LocalDate getDateProduced() {
         return dateProduced;
     }
 
@@ -28,37 +30,30 @@ public class Bread implements ShoppingItem{
     }
 
     public boolean isTwoDaysOldOrLess(){
-        if(DAYS.between(getDateProduced(), LocalDate.now()) <= 2){
-            return true;
-        }
-        return false;
+        return DAYS.between(getDateProduced(), LocalDate.now()) <= 2;
     }
 
     public boolean isBetweenThreeAndFiveDaysOld(){
-        if(DAYS.between(getDateProduced(), LocalDate.now()) >= 3 &&
-                DAYS.between(getDateProduced(), LocalDate.now()) <= 5){
-            return true;
-        }
-        return false;
+        return DAYS.between(getDateProduced(), LocalDate.now()) >= 3 &&
+                DAYS.between(getDateProduced(), LocalDate.now()) <= 5;
     }
 
     public boolean isSixDaysOld(){
-        if(DAYS.between(getDateProduced(), LocalDate.now()) == 6){
-            return true;
-        }
-        return false;
+        return DAYS.between(getDateProduced(), LocalDate.now()) == 6;
     }
 
     public boolean isTooOld(){
-        if(DAYS.between(getDateProduced(), LocalDate.now()) > 6){
-            return true;
-        }
-        return false;
+        return DAYS.between(getDateProduced(), LocalDate.now()) > 6;
     }
 
     @Override
     public BigDecimal getPrice() {
         return new BigDecimal("2.00");
+    }
+
+    @Override
+    public DiscountPolicy getDiscountPolicy() {
+        return DiscountPolicies.breadDiscountPolicy;
     }
 }
 
