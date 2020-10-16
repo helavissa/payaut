@@ -1,6 +1,6 @@
 package util;
 
-import discounts.Discounts;
+import discounts.OrderState;
 import products.Beer;
 import products.Bread;
 import products.ShoppingItem;
@@ -23,9 +23,9 @@ public class Util {
         }
     }
 
-    public static void applyDiscounts(List<ShoppingItem> shoppingList, Map<String, BigDecimal> appliedDiscounts, Discounts discounts){
+    public static void applyDiscounts(List<ShoppingItem> shoppingList, Map<String, BigDecimal> appliedDiscounts, OrderState orderState){
         for(ShoppingItem item: shoppingList){
-            BigDecimal discountAmount = item.getDiscountPolicy().getDiscount(item, discounts);
+            BigDecimal discountAmount = item.getDiscountPolicy().getDiscount(item, orderState);
             if(discountAmount.compareTo(BigDecimal.ZERO) > 0){
                 Util.addDiscount(appliedDiscounts, item.getProductName(), discountAmount);
             }
@@ -34,7 +34,7 @@ public class Util {
 
     public static void printReceipt(List<ShoppingItem> list){
         Map<String, BigDecimal> appliedDiscounts = new HashMap<>();
-        Util.applyDiscounts(list, appliedDiscounts, new Discounts());
+        Util.applyDiscounts(list, appliedDiscounts, new OrderState());
 
         BigDecimal totalBeforeDiscounts = list
                 .stream()

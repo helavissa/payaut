@@ -5,12 +5,12 @@ import products.Beer;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Discounts {
+public class OrderState {
 
     private int amountFreeBreads; // amount of free breads for customer
     private Map<Beer.BeerType, Integer> beersToDiscount; // counter of beers of each type, once pack(6) is reached, apply discount
 
-    public Discounts() {
+    public OrderState() {
         amountFreeBreads = 0;
         beersToDiscount = new HashMap<>();
         for(Beer.BeerType beerType: Beer.BeerType.values()){

@@ -1,4 +1,4 @@
-import discounts.Discounts;
+import discounts.OrderState;
 import org.junit.Before;
 import org.junit.Test;
 import products.Beer;
@@ -18,13 +18,13 @@ import static org.junit.Assert.assertNull;
 public class DiscountsTest {
 
     private Map<String, BigDecimal> appliedDiscounts;
-    private Discounts discounts;
+    private OrderState orderState;
     private List<ShoppingItem> shoppingItems;
 
     @Before
     public void init(){
         appliedDiscounts = new HashMap<>();
-        discounts = new Discounts();
+        orderState = new OrderState();
         shoppingItems = new ArrayList<>();
     }
 
@@ -48,7 +48,7 @@ public class DiscountsTest {
         Util.addBreads(shoppingItems, 5, 1);
         Util.addBreads(shoppingItems, 6, 2);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
         assertEquals(new BigDecimal("8.00"), appliedDiscounts.get(Bread.name));
     }
 
@@ -59,7 +59,7 @@ public class DiscountsTest {
         Util.addBreads(shoppingItems, 1, 2);
         Util.addBreads(shoppingItems, 2, 3);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
         assertNull(appliedDiscounts.get(Bread.name));
     }
 
@@ -68,7 +68,7 @@ public class DiscountsTest {
         Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 5);
         Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 9);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
         assertEquals(new BigDecimal("3.00"), appliedDiscounts.get(Beer.BeerType.BELGIUM.toString()));
     }
 
@@ -78,7 +78,7 @@ public class DiscountsTest {
         Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 5);
         Util.addBeers(shoppingItems, Beer.BeerType.GERMAN, 5);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
         assertNull(appliedDiscounts.get(Beer.BeerType.BELGIUM.toString()));
     }
 
@@ -92,7 +92,7 @@ public class DiscountsTest {
         Util.addBreads(shoppingItems, 4, 5);
         Util.addBreads(shoppingItems, 6, 10);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, discounts);
+        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
         Util.printDiscounts(appliedDiscounts);
 
         assertEquals(new BigDecimal("3.00"), appliedDiscounts.get(Beer.BeerType.GERMAN.toString()));
