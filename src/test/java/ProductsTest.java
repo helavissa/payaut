@@ -1,6 +1,8 @@
 import org.junit.Test;
-import products.Beer;
-import products.Bread;
+import products.beer.BelgiumBeer;
+import products.beer.DutchBeer;
+import products.beer.GermanBeer;
+import products.bread.Bread;
 import util.Constants;
 
 import java.time.LocalDate;
@@ -48,14 +50,14 @@ public class ProductsTest {
 
     @Test
     public void testBeer(){
-        Beer beerBelgium = new Beer(Beer.BeerType.BELGIUM);
-        assertEquals(Constants.BELGIUM_BEER_COST, beerBelgium.getPrice());
+        BelgiumBeer belgiumBeer = new BelgiumBeer();
+        assertEquals(Constants.BELGIUM_BEER_COST.compareTo(belgiumBeer.getPrice()), 0);
 
-        Beer beerDutch = new Beer(Beer.BeerType.DUTCH);
-        assertEquals(Constants.DUTCH_BEER_COST, beerDutch.getPrice());
+        DutchBeer dutchBeer = new DutchBeer();
+        assertEquals(Constants.DUTCH_BEER_COST.compareTo(dutchBeer.getPrice()), 0);
 
-        Beer beerGerman = new Beer(Beer.BeerType.GERMAN);
-        assertEquals(Constants.GERMAN_BEER_COST, beerGerman.getPrice());
+        GermanBeer germanBeer = new GermanBeer();
+        assertEquals(Constants.GERMAN_BEER_COST.compareTo(germanBeer.getPrice()), 0);
     }
 
 }

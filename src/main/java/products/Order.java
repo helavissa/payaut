@@ -1,107 +1,82 @@
 package products;
 
-import discounts.OrderState;
+import discounts.DiscountRules;
+import products.bread.Bread;
 import util.Constants;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
+import java.math.RoundingMode;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class Order {
 
-    private List<ShoppingItem> shoppingList;
-    private Map<String, BigDecimal> appliedDiscounts;
-    private OrderState orderState;
-    private boolean discountsApplied;
+    private final Map<ShoppingItem, Integer> shoppingList;
+    private final Map<Constants.ProductCode, BigDecimal> appliedDiscounts;
+    private BigDecimal orderTotal;
+    private BigDecimal orderDiscountsTotal;
 
     public Order() {
-        shoppingList = new ArrayList<>();
+        shoppingList = new HashMap<>();
         appliedDiscounts = new HashMap<>();
-        orderState = new OrderState();
-        discountsApplied = false;
+        orderTotal = BigDecimal.ZERO;
+        orderDiscountsTotal = BigDecimal.ZERO;
     }
 
-    public Map<String, BigDecimal> getAppliedDiscounts() {
+    public Map<Constants.ProductCode, BigDecimal> getAppliedDiscounts() {
         return appliedDiscounts;
-    }
-
-    public void setAppliedDiscounts(Map<String, BigDecimal> appliedDiscounts) {
-        this.appliedDiscounts = appliedDiscounts;
-    }
-
-    public OrderState getOrderState() {
-        return orderState;
-    }
-
-    public void setOrderState(OrderState orderState) {
-        this.orderState = orderState;
     }
 
     public void addItem(ShoppingItem shoppingItem){
         if(shoppingItem instanceof Bread && ((Bread) shoppingItem).isTooOld()){
             throw new IllegalArgumentException("Cannot add old bread to order");
         }
-        shoppingList.add(shoppingItem);
+        Integer amountOfProduct = shoppingList.get(shoppingItem);
+        amountOfProduct = (amountOfProduct == null) ? 1 : ++amountOfProduct;
+
+        orderTotal = orderTotal.add(shoppingItem.getPrice());
+        BigDecimal discountAmount = DiscountRules.getDiscountPolicy(shoppingItem).getDiscount(amountOfProduct, shoppingItem);
+        if(discountAmount.compareTo(BigDecimal.ZERO) > 0){
+            addDiscount(shoppingItem, discountAmount);
+            orderDiscountsTotal = orderDiscountsTotal.add(discountAmount).setScale(2, RoundingMode.HALF_UP);
+        }
+        shoppingList.put(shoppingItem, amountOfProduct);
     }
 
-    public void addDiscount(String productName, BigDecimal productDiscount){
-        BigDecimal discount = appliedDiscounts.get(productName);
-        if(discount == null){
-            appliedDiscounts.put(productName, productDiscount);
-        }else{
-            appliedDiscounts.put(productName, discount.add(productDiscount));
-        }
-    }
-
-    public void applyDiscounts(){
-        if(!discountsApplied){
-            shoppingList.forEach(n -> {
-                BigDecimal discountAmount = n.getDiscount(orderState);
-                if(discountAmount.compareTo(BigDecimal.ZERO) > 0){
-                    addDiscount(n.getProductName(), discountAmount);
-                }
-            });
-        }
-        this.discountsApplied = true;
+    public void addDiscount(ShoppingItem shoppingItem, BigDecimal productDiscount){
+        BigDecimal discount = appliedDiscounts.getOrDefault(shoppingItem.getProductCode(), BigDecimal.ZERO);
+        appliedDiscounts.put(shoppingItem.getProductCode(), discount.add(productDiscount).setScale(2, RoundingMode.HALF_UP));
     }
 
     public void printReceipt(){
-        this.applyDiscounts();
-
-        BigDecimal totalBeforeDiscounts = getTotalBeforeDiscounts();
-        BigDecimal totalDiscounts = getTotalDiscounts();
-
         System.out.println(String.format(Constants.RECEIPT_FORMAT_2, "").replace(' ', '*'));
         System.out.println(String.format(Constants.RECEIPT_FORMAT,  "Item", "Amount"));
-        shoppingList.forEach(shoppingItem -> System.out.println(String.format(Constants.RECEIPT_FORMAT,  shoppingItem.getProductName(), shoppingItem.getPrice())));
+        shoppingList.forEach((key, value) ->
+                System.out.println(String.format(Constants.RECEIPT_FORMAT,
+                        (key.getProductCode() + " x " + value),
+                        key.getPrice().multiply(new BigDecimal(value)).setScale(2, RoundingMode.HALF_UP))));
+
 
         System.out.println(String.format(Constants.RECEIPT_FORMAT_2, "").replace(' ', '*'));
-        System.out.println(String.format(Constants.RECEIPT_FORMAT,  "Total before discounts:", totalBeforeDiscounts));
+        System.out.println(String.format(Constants.RECEIPT_FORMAT,  "Total before discounts:", orderTotal));
         System.out.println(String.format(Constants.RECEIPT_FORMAT_2, "").replace(' ', '*'));
 
         System.out.println("Discounts: ");
         System.out.println(String.format(Constants.RECEIPT_FORMAT,  "Item", "Amount"));
         appliedDiscounts.forEach((key, value) ->
-                System.out.println(String.format(Constants.RECEIPT_FORMAT,  key, value)));
+                System.out.println(String.format(Constants.RECEIPT_FORMAT,
+                        key, value)));
         System.out.println(String.format(Constants.RECEIPT_FORMAT_2, "").replace(' ', '*'));
-        System.out.println(String.format(Constants.RECEIPT_FORMAT,  "Total discounts:", totalDiscounts));
-        System.out.println(String.format(Constants.RECEIPT_FORMAT,  "TOTAL:", getTotal()));
+        System.out.println(String.format(Constants.RECEIPT_FORMAT,  "Total discounts:", orderDiscountsTotal));
+        System.out.println(String.format(Constants.RECEIPT_FORMAT,  "TOTAL:", orderTotal.subtract(orderDiscountsTotal)));
     }
 
-    private BigDecimal getTotalBeforeDiscounts(){
-        return shoppingList
-                .stream()
-                .map(ShoppingItem::getPrice)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal getOrderTotal(){
+        return orderTotal;
     }
 
-    public BigDecimal getTotalDiscounts(){
-        return appliedDiscounts.values().stream().reduce(BigDecimal.ZERO, BigDecimal::add);
+    public BigDecimal getOrderDiscountsTotal(){
+        return orderDiscountsTotal;
     }
 
-    public BigDecimal getTotal(){
-        return getTotalBeforeDiscounts().subtract(getTotalDiscounts());
-    }
 }

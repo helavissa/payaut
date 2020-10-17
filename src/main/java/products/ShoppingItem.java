@@ -1,10 +1,10 @@
 package products;
 
-import discounts.DiscountPolicy;
+import util.Constants;
 
 import java.math.BigDecimal;
 
-public interface ShoppingItem extends DiscountPolicy{
+public interface ShoppingItem{
+    Constants.ProductCode getProductCode();
     BigDecimal getPrice();
-    String getProductName();
 }

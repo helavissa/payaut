@@ -1,9 +1,8 @@
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import products.Beer;
-import products.Bread;
 import products.Order;
+import products.bread.Bread;
 import util.Constants;
 import util.Util;
 
@@ -39,19 +38,21 @@ public class OrderTest {
 
     @Test
     public void checkAddDiscount(){
-        order.addDiscount("bread", new BigDecimal("2.00"));
-        order.addDiscount( "bread", new BigDecimal("3.00"));
-        order.addDiscount( "beer", new BigDecimal("1.00"));
+        Bread bread = new Bread(LocalDate.now());
+        Bread bread2 = new Bread(LocalDate.now().minusDays(5));
+        order.addDiscount(bread, new BigDecimal("2.00"));
+        order.addDiscount(bread, new BigDecimal("3.00"));
+        order.addDiscount(bread2, new BigDecimal("1.00"));
 
-        assertEquals(order.getAppliedDiscounts().get("bread"), new BigDecimal("5.00"));
-        assertEquals(order.getAppliedDiscounts().get("beer"), new BigDecimal("1.00"));
+        assertEquals(new BigDecimal("5.00").compareTo(order.getAppliedDiscounts().get(bread.getProductCode())), 0);
+        assertEquals(new BigDecimal("1.00").compareTo(order.getAppliedDiscounts().get(bread2.getProductCode())), 0);
     }
 
     @Test
     public void checkPrint(){
         Util.addBreads(order, 3, 2);
         Util.addBreads(order, 6, 3);
-        Util.addBeers(order, Beer.BeerType.GERMAN, 6);
+        Util.addBeers(order, Constants.ProductCode.BEER_GERMAN, 6);
         order.printReceipt();
         assertTrue(outContent.toString().contains(String.format(Constants.RECEIPT_FORMAT,  "Total discounts:", "7.00")));
         assertTrue(outContent.toString().contains(String.format(Constants.RECEIPT_FORMAT,  "TOTAL:", "9.00")));
