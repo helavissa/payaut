@@ -4,8 +4,7 @@ import discounts.DiscountPolicy;
 
 import java.math.BigDecimal;
 
-public interface ShoppingItem {
+public interface ShoppingItem extends DiscountPolicy{
     BigDecimal getPrice();
-    DiscountPolicy getDiscountPolicy();
     String getProductName();
 }

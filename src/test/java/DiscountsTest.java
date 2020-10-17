@@ -1,102 +1,88 @@
-import discounts.OrderState;
 import org.junit.Before;
 import org.junit.Test;
 import products.Beer;
 import products.Bread;
-import products.ShoppingItem;
+import products.Order;
 import util.Util;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 public class DiscountsTest {
 
-    private Map<String, BigDecimal> appliedDiscounts;
-    private OrderState orderState;
-    private List<ShoppingItem> shoppingItems;
+    private Order order;
 
     @Before
     public void init(){
-        appliedDiscounts = new HashMap<>();
-        orderState = new OrderState();
-        shoppingItems = new ArrayList<>();
-    }
-
-    @Test
-    public void checkAddDiscount(){
-        Util.addDiscount(appliedDiscounts, "bread", new BigDecimal("2.00"));
-        Util.addDiscount(appliedDiscounts, "bread", new BigDecimal("3.00"));
-        Util.addDiscount(appliedDiscounts, "beer", new BigDecimal("1.00"));
-
-        assertEquals(appliedDiscounts.get("bread"), new BigDecimal("5.00"));
-        assertEquals(appliedDiscounts.get("beer"), new BigDecimal("1.00"));
+        order = new Order();
     }
 
     @Test
     public void testBreadDiscount1(){
-        Util.addBreads(shoppingItems, 0, 2);
-        Util.addBreads(shoppingItems, 2, 1);
-        Util.addBreads(shoppingItems, 6, 3);
-        Util.addBreads(shoppingItems, 3, 1);
-        Util.addBreads(shoppingItems, 4, 1);
-        Util.addBreads(shoppingItems, 5, 1);
-        Util.addBreads(shoppingItems, 6, 2);
+        Util.addBreads(order, 0, 2);
+        Util.addBreads(order, 2, 1);
+        Util.addBreads(order, 6, 3);
+        Util.addBreads(order, 3, 1);
+        Util.addBreads(order, 4, 1);
+        Util.addBreads(order, 5, 1);
+        Util.addBreads(order, 6, 2);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
-        assertEquals(new BigDecimal("8.00"), appliedDiscounts.get(Bread.name));
+        order.applyDiscounts();
+        assertEquals(new BigDecimal("8.00"), order.getTotalDiscounts());
     }
 
 
     @Test
     public void testBreadDiscount2(){
-        Util.addBreads(shoppingItems, 0, 1);
-        Util.addBreads(shoppingItems, 1, 2);
-        Util.addBreads(shoppingItems, 2, 3);
+        Util.addBreads(order, 0, 1);
+        Util.addBreads(order, 1, 2);
+        Util.addBreads(order, 2, 3);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
-        assertNull(appliedDiscounts.get(Bread.name));
+        order.applyDiscounts();
+        assertNull(order.getAppliedDiscounts().get(Bread.name));
     }
 
     @Test
     public void testBeerDiscount1(){
-        Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 5);
-        Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 9);
+        Util.addBeers(order, Beer.BeerType.DUTCH, 5);
+        Util.addBeers(order, Beer.BeerType.BELGIUM, 9);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
-        assertEquals(new BigDecimal("3.00"), appliedDiscounts.get(Beer.BeerType.BELGIUM.toString()));
+        order.applyDiscounts();
+        assertEquals(new BigDecimal("3.00"), order.getTotalDiscounts());
     }
 
     @Test
     public void testBeerDiscount2(){
-        Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 5);
-        Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 5);
-        Util.addBeers(shoppingItems, Beer.BeerType.GERMAN, 5);
+        Util.addBeers(order, Beer.BeerType.DUTCH, 5);
+        Util.addBeers(order, Beer.BeerType.BELGIUM, 5);
+        Util.addBeers(order, Beer.BeerType.GERMAN, 5);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
-        assertNull(appliedDiscounts.get(Beer.BeerType.BELGIUM.toString()));
+        order.applyDiscounts();
+        assertNull(order.getAppliedDiscounts().get(Beer.BeerType.DUTCH.toString()));
+        assertNull(order.getAppliedDiscounts().get(Beer.BeerType.BELGIUM.toString()));
+        assertNull(order.getAppliedDiscounts().get(Beer.BeerType.GERMAN.toString()));
+        assertEquals(BigDecimal.ZERO, order.getTotalDiscounts());
     }
 
     @Test
     public void testTotalDiscount1(){
-        Util.addBeers(shoppingItems, Beer.BeerType.DUTCH, 7);
-        Util.addBeers(shoppingItems, Beer.BeerType.BELGIUM, 5);
-        Util.addBeers(shoppingItems, Beer.BeerType.GERMAN, 18);
-        Util.addBreads(shoppingItems, 1, 5);
-        Util.addBreads(shoppingItems, 3, 5);
-        Util.addBreads(shoppingItems, 4, 5);
-        Util.addBreads(shoppingItems, 6, 10);
+        Util.addBeers(order, Beer.BeerType.DUTCH, 7);
+        Util.addBeers(order, Beer.BeerType.BELGIUM, 5);
+        Util.addBeers(order, Beer.BeerType.GERMAN, 18);
 
-        Util.applyDiscounts(shoppingItems, appliedDiscounts, orderState);
-        Util.printDiscounts(appliedDiscounts);
+        Util.addBreads(order, 1, 5);
+        Util.addBreads(order, 3, 5);
+        Util.addBreads(order, 4, 5);
+        Util.addBreads(order, 6, 10);
 
-        assertEquals(new BigDecimal("3.00"), appliedDiscounts.get(Beer.BeerType.GERMAN.toString()));
-        assertEquals(new BigDecimal("2.00"), appliedDiscounts.get(Beer.BeerType.DUTCH.toString()));
-        assertEquals(new BigDecimal("22.00"), appliedDiscounts.get(Bread.name));
+        order.applyDiscounts();
+
+        assertEquals(new BigDecimal("3.00"), order.getAppliedDiscounts().get(Beer.BeerType.GERMAN.toString()));
+        assertEquals(new BigDecimal("2.00"), order.getAppliedDiscounts().get(Beer.BeerType.DUTCH.toString()));
+        assertEquals(new BigDecimal("22.00"), order.getAppliedDiscounts().get(Bread.name));
+        assertEquals(new BigDecimal("27.00"), order.getTotalDiscounts());
+        assertEquals(new BigDecimal("61.50"), order.getTotal());
     }
 }

@@ -1,14 +1,14 @@
 package products;
 
-import discounts.DiscountPolicies;
-import discounts.DiscountPolicy;
+import discounts.OrderState;
+import util.Constants;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
-public class Bread implements ShoppingItem{
+public class Bread implements ShoppingItem {
 
     public static final String name = "Bread";
     private LocalDate dateProduced;
@@ -48,12 +48,32 @@ public class Bread implements ShoppingItem{
 
     @Override
     public BigDecimal getPrice() {
-        return new BigDecimal("2.00");
+        return Constants.BREAD_PRICE;
     }
 
     @Override
-    public DiscountPolicy getDiscountPolicy() {
-        return DiscountPolicies.breadDiscountPolicy;
+    public BigDecimal getDiscount(OrderState orderState) {
+        if(this.isTwoDaysOldOrLess()){
+            return BigDecimal.ZERO;
+        }
+
+        // discount breads if applicable, or increase counter for free breads, depending on type
+        if(this.isBetweenThreeAndFiveDaysOld()){
+            if(orderState.getAmountFreeBreadsB() > 0){
+                orderState.setAmountFreeBreadsB(orderState.getAmountFreeBreadsB() - 1);
+                return this.getPrice();
+            }else{
+                orderState.setAmountFreeBreadsB(orderState.getAmountFreeBreadsB() + 1);
+            }
+        }else if(this.isSixDaysOld()){
+            if(orderState.getAmountFreeBreadsC() > 0){
+                orderState.setAmountFreeBreadsC(orderState.getAmountFreeBreadsC() - 1);
+                return this.getPrice();
+            }else{
+                orderState.setAmountFreeBreadsC(orderState.getAmountFreeBreadsC() + 2);
+            }
+        }
+        return BigDecimal.ZERO;
     }
 }
 

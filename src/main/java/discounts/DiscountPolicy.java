@@ -1,11 +1,11 @@
 package discounts;
 
-import products.ShoppingItem;
-
 import java.math.BigDecimal;
 
-public interface DiscountPolicy<T extends ShoppingItem> {
+public interface DiscountPolicy{
 
-    BigDecimal getDiscount(T t, OrderState orderState);
+    default BigDecimal getDiscount(OrderState orderState){
+        return BigDecimal.ZERO;
+    }
 
 }

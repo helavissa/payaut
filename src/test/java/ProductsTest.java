@@ -1,10 +1,11 @@
 import org.junit.Test;
+import products.Beer;
 import products.Bread;
+import util.Constants;
 
 import java.time.LocalDate;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class ProductsTest {
 
@@ -16,8 +17,6 @@ public class ProductsTest {
         assertFalse(breadNew.isBetweenThreeAndFiveDaysOld());
         assertFalse(breadNew.isSixDaysOld());
         assertFalse(breadNew.isTooOld());
-
-        //TODO add tests
 
         Bread bread3 = new Bread(LocalDate.now().minusDays(3)); // test 3 days bread
         assertFalse(bread3.isTwoDaysOldOrLess());
@@ -46,4 +45,17 @@ public class ProductsTest {
         assertFalse(breadOld.isSixDaysOld());
         assertTrue(breadOld.isTooOld());
     }
+
+    @Test
+    public void testBeer(){
+        Beer beerBelgium = new Beer(Beer.BeerType.BELGIUM);
+        assertEquals(Constants.BELGIUM_BEER_COST, beerBelgium.getPrice());
+
+        Beer beerDutch = new Beer(Beer.BeerType.DUTCH);
+        assertEquals(Constants.DUTCH_BEER_COST, beerDutch.getPrice());
+
+        Beer beerGerman = new Beer(Beer.BeerType.GERMAN);
+        assertEquals(Constants.GERMAN_BEER_COST, beerGerman.getPrice());
+    }
+
 }
